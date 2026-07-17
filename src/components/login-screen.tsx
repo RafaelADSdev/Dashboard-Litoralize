@@ -183,7 +183,7 @@ export function LoginScreen({ configured, onSignIn }: LoginScreenProps) {
 
       <aside className="login-hero" aria-label="Dashboard Comercial Litoralize">
         <div className="login-hero-content">
-          <p className="login-hero-kicker">Superintendência Focus</p>
+          <p className="login-hero-kicker">Superintendência Jordão</p>
           <h2>
             Dashboard
             <br />

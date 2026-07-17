@@ -2,21 +2,25 @@
 
 ## Register
 
-product
+Dashboard Litoralize
 
 ## Users
 
-Gestores comerciais, líderes de equipe e diretoria da Focus (imobiliário / vendas). Usam o painel em reunião de panorama — projetor ou notebook, tempo curto, pressão por decisão. Precisam ver volume de leads, distribuição por fase e desempenho por corretor sem abrir o Bitrix.
+Gestores comerciais, líderes de equipe e diretoria da **Superintendência Jordão** (imobiliário / vendas). Usam o painel em reunião de panorama — projetor ou notebook, tempo curto, pressão por decisão. Precisam ver volume de leads, distribuição por fase e desempenho por corretor sem abrir o Bitrix.
 
 ## Product Purpose
 
-Dashboard operacional que consolida leads do Bitrix (webhook) por mês de criação, equipe Focus (Elite / Líder / Total), fase do funil e corretor. Sucesso = em poucos segundos saber onde está o volume, onde estão as perdas e quem carrega cada etapa — sem planilha paralela.
+Dashboard operacional que consolida leads do Bitrix (webhook) por mês de criação, equipes no CRM (Elite / Líder / Total e subequipes da esteira Econômico), fase do funil e corretor. Sucesso = em poucos segundos saber onde está o volume, onde estão as perdas e quem carrega cada etapa — sem planilha paralela.
+
+Identidade **Litoralize**: logo, tema azul escuro e contexto da Superintendência Jordão.
 
 ## Brand Personality
 
 Direta · analítica · focada.
 
 Tom de sala de guerra comercial: números legíveis, hierarquia clara, zero teatro. Confiança vem da precisão dos dados e da separação explícita entre funil ativo e perdas — não de ornamentação.
+
+Identidade visual: **azul escuro**, marca **Litoralize** na entrada e contexto organizacional **Jordão**.
 
 ## Anti-references
 
@@ -37,3 +41,12 @@ Tom de sala de guerra comercial: números legíveis, hierarquia clara, zero teat
 ## Accessibility & Inclusion
 
 Meta WCAG 2.2 AA em contraste de texto e controles. Respeitar `prefers-reduced-motion`. Cores de fase não são o único canal de significado (rótulos e valores numéricos sempre presentes). Tabelas com scroll horizontal em telas estreitas; foco visível em filtros e abas.
+
+## Deploy & infraestrutura
+
+| Item | Valor |
+|------|-------|
+| Repositório | [github.com/RafaelADSdev/Dashboard-Litoralize](https://github.com/RafaelADSdev/Dashboard-Litoralize) |
+| Produção | [dashboard-litoralize.vercel.app](https://dashboard-litoralize.vercel.app) |
+| Auth / acesso | Supabase |
+| Bitrix | Webhook REST (`BITRIX_WEBHOOK_URL`) |

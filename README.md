@@ -1,12 +1,21 @@
-# Dashboard Litoral
+# Dashboard Litoralize
 
-Dashboard comercial da **Hub ON** para reuniões de panorama das equipes Focus. Consolida leads do Bitrix24 por mês de criação, equipe, fase do funil e corretor — sem abrir o CRM.
+Dashboard comercial da **Hub ON** para reuniões de panorama da **Superintendência Jordão**. Consolida leads do Bitrix24 por mês de criação, equipe, fase do funil e corretor — sem abrir o CRM.
 
-![Hub ON](public/hub-on-cor.png)
+![Litoralize](Litoralize.png)
+
+**Produção:** [dashboard-litoralize.vercel.app](https://dashboard-litoralize.vercel.app)  
+**Repositório:** [github.com/RafaelADSdev/Dashboard-Litoralize](https://github.com/RafaelADSdev/Dashboard-Litoralize)
 
 ## Para quem é
 
-Gestores comerciais, líderes de equipe e diretoria da Focus (imobiliário / vendas). O painel foi pensado para **projetor ou notebook**, com leitura rápida de volume, perdas e desempenho por corretor.
+Gestores comerciais, líderes de equipe e diretoria da Superintendência Jordão (imobiliário / vendas). O painel foi pensado para **projetor ou notebook**, com leitura rápida de volume, perdas e desempenho por corretor.
+
+## Identidade visual
+
+- **Tema:** azul escuro (navbar, login e dashboard)
+- **Login:** logo **Litoralize** + HubON; hero com *Superintendência Jordão*
+- **Dados:** equipes e fases do Bitrix (Elite, Líder, Total, Primeira Chave etc.)
 
 ## Funcionalidades
 
@@ -22,7 +31,7 @@ Gestores comerciais, líderes de equipe e diretoria da Focus (imobiliário / ven
 - **Funil ativo vs. perdas** — Negócios Perdidos e Prazos Perdidos separados visualmente do funil ativo
 - **Status do atendimento** — quarentena e standby do campo customizado Bitrix
 - **Roster Focus** — corretores que saíram da equipe aparecem em cinza
-- **Identidade visual fixa** — navbar roxa, fundo cinza-claro e cards em Liquid Glass
+- **Identidade visual fixa** — navbar azul escuro, fundo escuro e cards em Liquid Glass
 - **Dados Bitrix ou fallback local** — usa webhook quando configurado; caso contrário, exibe dados estáticos de demonstração
 - **Proteção contra limite do Bitrix** — cache regional de 15 minutos, dados anteriores por até 6 horas e espera progressiva em respostas HTTP 429
 
@@ -54,8 +63,8 @@ Gestores comerciais, líderes de equipe e diretoria da Focus (imobiliário / ven
 ## Instalação
 
 ```bash
-git clone https://github.com/Hub-On-Tecnologia/dashboard-comercial-focus.git
-cd dashboard-comercial-focus
+git clone https://github.com/RafaelADSdev/Dashboard-Litoralize.git
+cd Dashboard-Litoralize
 npm install
 ```
 
@@ -157,7 +166,10 @@ npm run build
 npm run vercel:prod
 ```
 
-Configure no painel da Vercel (ou via `vercel env`):
+**Projeto Vercel:** `dashboard-litoralize` (time `auzendegbrs-projects`)  
+**URL de produção:** [dashboard-litoralize.vercel.app](https://dashboard-litoralize.vercel.app)
+
+Variáveis configuradas na Vercel (production, preview e development):
 
 - `BITRIX_WEBHOOK_URL`
 - `VITE_SUPABASE_URL`
@@ -165,7 +177,7 @@ Configure no painel da Vercel (ou via `vercel env`):
 - `SUPABASE_SERVICE_ROLE_KEY`
 - `VITE_ADMIN_EMAILS` (opcional)
 
-O `vite.config.ts` declara essas variáveis para o runtime do servidor.
+O `vite.config.ts` declara essas variáveis para o runtime do servidor. Push na branch `main` dispara deploy automático via integração GitHub.
 
 ## Integração Bitrix
 
@@ -191,6 +203,9 @@ src/
 ├── routes/
 │   ├── __root.tsx              # Shell HTML, meta, favicon
 │   └── index.tsx               # Dashboard + alternância de esteiras
+├── assets/
+│   ├── litoralize.png          # Logo Litoralize (login)
+│   └── hub-on-branco.png
 ├── lib/
 │   ├── access-control.ts       # Papéis, páginas, esteiras e regras
 │   ├── access.tsx              # Provider de permissões (cliente)
@@ -200,10 +215,10 @@ src/
 │   ├── create-user-access.server.ts
 │   └── teams-data.ts           # Equipes, roster e agregações
 ├── components/
-│   ├── login-screen.tsx
+│   ├── login-screen.tsx        # Login com logo Litoralize + Jordão
 │   ├── access-management-screen.tsx
 │   └── ui/                     # Componentes shadcn/ui
-├── styles.css
+├── styles.css                  # Tema azul escuro
 supabase/migrations/            # SQL de auth e controle de acesso
 scripts/                        # Utilitários de setup e verificação
 public/
@@ -213,8 +228,8 @@ public/
 ## Documentação adicional
 
 - [PRODUCT.md](./PRODUCT.md) — propósito, público e princípios de produto
-- [DESIGN.md](./DESIGN.md) — tokens, tipografia e padrões visuais
+- [DESIGN.md](./DESIGN.md) — tokens, tipografia e padrões visuais (tema azul)
 
 ---
 
-**Hub ON** · CRECI 1735-J/B
+**Hub ON** · CRECI 1735-J/B · Superintendência Jordão

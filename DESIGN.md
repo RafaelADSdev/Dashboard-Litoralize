@@ -1,10 +1,10 @@
 ---
-name: Sales Compass Visual — Focus
-description: Dashboard comercial Focus — funil, equipes e corretores a partir do Bitrix.
+name: Sales Compass Visual — Litoralize
+description: Dashboard comercial Litoralize (Superintendência Jordão) — funil, equipes e corretores a partir do Bitrix.
 colors:
   canvas: "oklch(0.12 0.04 250)"
-  surface: "oklch(0.16 0.045 298)"
-  surface-glass: "oklch(0.18 0.042 298 / 0.48)"
+  surface: "oklch(0.16 0.045 250)"
+  surface-glass: "oklch(0.18 0.042 250 / 0.48)"
   ink: "oklch(0.98 0.005 250)"
   ink-muted: "oklch(0.70 0.02 260)"
   ink-faint: "oklch(0.55 0.02 260)"
@@ -100,13 +100,15 @@ components:
     padding: "0.625rem 1rem"
 ---
 
-# Design System: Sales Compass Visual — Focus
+# Design System: Sales Compass Visual — Litoralize
 
 ## Overview
 
 **Creative North Star: "War Room Comercial"**
 
-Superfície escura de reunião — densidade alta, contraste forte, cor só onde o dado exige (fase, equipe, perda). A UI serve o ritual semanal de panorama Focus: filtrar mês, comparar equipes, ler funil ativo vs perdas, inspecionar corretor por etapa.
+Superfície escura de reunião — densidade alta, contraste forte, cor só onde o dado exige (fase, equipe, perda). A UI serve o ritual semanal de panorama da **Superintendência Jordão**: filtrar mês, comparar equipes, ler funil ativo vs perdas, inspecionar corretor por etapa.
+
+Identidade visual do **Dashboard Litoralize**: tema **azul escuro** (login `#0a1628`, acentos `#1e40af` → `#60a5fa`), logo Litoralize na tela de login e hero com *Superintendência Jordão*.
 
 Tipografia **Plus Jakarta Sans** em todo o dashboard (400–700), métricas com `tabular-nums`, painéis com borda sutil. Motion intencional: entrada escalonada de KPIs, barras que preenchem, abas com pill deslizante, transição suave entre Visão Geral e equipes — sempre com fallback em `prefers-reduced-motion`.
 
@@ -120,15 +122,22 @@ Tipografia **Plus Jakarta Sans** em todo o dashboard (400–700), métricas com 
 
 Anti-referências herdadas de PRODUCT.md: CRM roxo/indigo genérico, neon glow, grids de cards idênticos, eyebrows uppercase em toda seção, hero-metric template.
 
+### Login
+
+- **Canvas:** `#0a1628` (azul marinho escuro)
+- **Acento do botão:** gradiente `#1e40af` → `#60a5fa`
+- **Logo:** Litoralize (`src/assets/litoralize.png`) + HubON
+- **Hero:** kicker *Superintendência Jordão* + título "Dashboard Comercial"
+
 ## Colors
 
 Canvas slate quase-preto (`canvas` / `surface`) com tinta clara. Neutros carregam ~85% da UI.
 
 ### Primary (equipes)
 
-- **Focus Elite Blue** (`#1e40af` → `#60a5fa`): aba ativa, pill deslizante, filete do card equipe.
-- **Focus Líder Emerald** (`#10b981` → `#14b8a6`): idem.
-- **Focus Total Amber** (`#f59e0b` → `#f97316`): idem.
+- **Elite Blue** (`#1e40af` → `#60a5fa`): aba ativa, pill deslizante, filete do card equipe.
+- **Líder Emerald** (`#10b981` → `#14b8a6`): idem.
+- **Total Amber** (`#f59e0b` → `#f97316`): idem.
 
 ### Neutral
 
@@ -139,7 +148,7 @@ Canvas slate quase-preto (`canvas` / `surface`) com tinta clara. Neutros carrega
 
 ### Tertiary (fases do funil)
 
-Vocabulário fixo em `phase-*` (teal, indigo, sky, amber, violet, emerald). Perdas: `phase-negocios-perdidos` (#ef4444), `phase-prazos-perdidos` (#f97316).
+Vocabulário fixo em `phase-*` (teal, blue, sky, amber, emerald). Perdas: `phase-negocios-perdidos` (#ef4444), `phase-prazos-perdidos` (#f97316).
 
 **The Loss Zone Rule.** Coluna "Neg. perd." na tabela usa caixa própria (`border-x` vermelho escuro + fundo `red-950/15`); Prazos e Ativo ficam fora. Perdas nunca entram na mesma barra empilhada do funil ativo.
 
@@ -153,7 +162,7 @@ Vocabulário fixo em `phase-*` (teal, indigo, sky, amber, violet, emerald). Perd
 
 ### Hierarchy
 
-- **Display** (700, `text-2xl`/`text-3xl`, tracking ≥ −0.04em): título "Dashboard das Equipes Focus".
+- **Display** (700, `text-2xl`/`text-3xl`, tracking ≥ −0.04em): título "Dashboard Comercial" / equipes no header.
 - **Metric** (700, `text-4xl`/`text-5xl`, `tabular-nums`): funil ativo, KPI equipe, totais animados.
 - **Title** (600, `text-sm`): títulos de painel ("Chegada de leads", "Distribuição por fase").
 - **Body** (400–500, `text-xs`/`text-sm`): legendas, subtítulos, células de tabela.
@@ -220,7 +229,7 @@ Gradiente de página é atmosfera de fundo, não card flutuante.
 
 ### Don't:
 
-- **Don't** usar CRM genérico roxo/indigo-on-white, painéis crypto/neon glow, ou glass que prejudique o contraste.
+- **Don't** usar CRM genérico roxo/indigo-on-white (este projeto usa azul escuro), painéis crypto/neon glow, ou glass que prejudique o contraste.
 - **Don't** misturar perdas na mesma barra empilhada do funil ativo.
 - **Don't** repetir eyebrow uppercase em cada seção — só no chrome de filtro e rótulos de bloco Funil/Perdas.
 - **Don't** empilhar `border` + `box-shadow` largo no mesmo elemento (ghost-card).
