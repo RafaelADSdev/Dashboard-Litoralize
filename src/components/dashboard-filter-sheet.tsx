@@ -14,8 +14,8 @@ import {
 } from "@/components/ui/select";
 import {
   DASHBOARD_PIPELINES,
-  isFocusMainTeamId,
-  isPrimeiraChaveTeamId,
+  EXCLUSIVE_LITORAL_DIRECTORATE_LABEL,
+  isLitoralTeamId,
   type DashboardPipelineKey,
   type DiretoriaFilter,
 } from "@/lib/access-control";
@@ -33,8 +33,7 @@ export type DashboardFilters = {
 
 const DIRETORIA_OPTIONS: { id: DiretoriaFilter; label: string }[] = [
   { id: "all", label: "Todas as diretorias" },
-  { id: "focus", label: "Focus" },
-  { id: "primeira_chave", label: "focus - primeira chave" },
+  { id: "exclusive_litoral", label: EXCLUSIVE_LITORAL_DIRECTORATE_LABEL },
 ];
 
 type DatePresetId = "all" | "current" | "peak";
@@ -88,11 +87,9 @@ export function DashboardFilterSheet({
 
   function setDiretoria(value: DiretoriaFilter) {
     setDraft((prev) => {
-      const focus = teams.filter((t) => isFocusMainTeamId(t.id));
-      const primeiraChave = teams.filter((t) => isPrimeiraChaveTeamId(t.id));
       const scopedTeams =
-        value === "all" ? [...focus, ...primeiraChave] : value === "focus" ? focus : primeiraChave;
-      const scopedIds = new Set(["overview", ...scopedTeams.map((t) => t.id)]);
+        value === "all" ? teams : teams.filter((team) => isLitoralTeamId(team.id));
+      const scopedIds = new Set(["overview", ...scopedTeams.map((team) => team.id)]);
       const teamId = scopedIds.has(prev.teamId) ? prev.teamId : "overview";
       return { ...prev, diretoria: value, teamId };
     });

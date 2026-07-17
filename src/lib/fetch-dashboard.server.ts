@@ -30,7 +30,6 @@ import {
 } from "@/lib/dashboard-payload";
 import {
   DEFAULT_PIPELINE_KEY,
-  buildEconomicoDepartmentTargets,
   getPipelineCategoryId,
   getPipelineDepartmentLabels,
   getPipelineDepartments,
@@ -456,13 +455,6 @@ function resolveStagePhase(
   if (phaseByName) return phaseByName;
 
   const semantic = String(stage?.EXTRA?.SEMANTICS || stage?.SEMANTICS || "").toLowerCase();
-  if (pipeline === "economico") {
-    if (semantic === "success" || semantic === "s") return "Contrato rodado";
-    if (semantic === "failure" || semantic === "apology" || semantic === "f") {
-      return "Perda";
-    }
-    return "Primeiro contato";
-  }
 
   // Nenhum deal pode desaparecer do total por causa de uma etapa nova ou renomeada.
   if (semantic === "success" || semantic === "s") return "Contratos Assinados";
@@ -601,7 +593,7 @@ function ingestItems(
 
     const uid = String(item.ASSIGNED_BY_ID || "");
     const user = users.get(uid);
-    if (!user) continue; // somente responsáveis dos três departamentos Focus
+    if (!user) continue; // somente responsáveis dos departamentos Litoral
     const team = teams.find((candidate) => candidate.id === user.teamId);
     if (!team) continue;
     const member = ensureMember(team, user.name, uid, user.photoUrl);
@@ -609,9 +601,7 @@ function ingestItems(
 
     const attendanceId = resolveEnumerationId(item[BITRIX_ATTENDANCE_STATUS_FIELD]);
     const attendancePhase = attendanceId ? attendanceStatusById.get(attendanceId) : null;
-    const shouldCountAttendancePhase =
-      pipeline !== "economico" || attendancePhase === "Em Quarentena";
-    if (attendancePhase && attendancePhase !== phase && shouldCountAttendancePhase) {
+    if (attendancePhase && attendancePhase !== phase) {
       bump(member.matrix, attendancePhase, month);
     }
 
@@ -632,8 +622,7 @@ async function loadFromBitrix(pipeline: DashboardPipelineKey): Promise<Dashboard
     fetchDealStages(dealCategoryId),
   ]);
 
-  const departmentTargets =
-    pipeline === "economico" ? buildEconomicoDepartmentTargets(departments) : getPipelineDepartments(pipeline);
+  const departmentTargets = getPipelineDepartments(pipeline);
   const teams = emptyRosterFromTargets(departmentTargets, pipeline);
   const { direct: directDepartmentTeams, resolved: departmentTeams } = resolveDepartmentTargets(
     departments,
@@ -705,7 +694,7 @@ async function loadFromBitrix(pipeline: DashboardPipelineKey): Promise<Dashboard
   applyActiveRosterFromBitrix(teams, users);
   if (ingestedDeals !== deals.length) {
     console.warn(
-      `[dashboard] ${deals.length - ingestedDeals} deal(s) ignorado(s) — data inválida ou responsável fora do Focus`,
+      `[dashboard] ${deals.length - ingestedDeals} deal(s) ignorado(s) — data inválida ou responsável fora do Litoral`,
     );
   }
 
@@ -766,8 +755,8 @@ async function writeDashboardCache(
     await withTimeout(
       getCache({ namespace: "sales-compass" }).set(cacheKey, entry, {
         ttl: STALE_CACHE_MS / 1_000,
-        tags: ["dashboard-focus", `dashboard-focus-${YEAR}`, `dashboard-focus-${pipeline}`],
-        name: `dashboard-focus-bitrix-${pipeline}`,
+        tags: ["dashboard-litoralize", `dashboard-litoralize-${YEAR}`, `dashboard-litoralize-${pipeline}`],
+        name: `dashboard-litoralize-bitrix-${pipeline}`,
       }),
       CACHE_WRITE_TIMEOUT_MS,
     );
@@ -864,9 +853,7 @@ export async function warmDashboardCacheHandler(
     return { ok: false, reason: "BITRIX_WEBHOOK_URL não configurada" };
   }
 
-  const targets: DashboardPipelineKey[] = pipeline
-    ? [pipeline]
-    : ["comercial_geral", "economico"];
+  const targets: DashboardPipelineKey[] = pipeline ? [pipeline] : [DEFAULT_PIPELINE_KEY];
 
   try {
     for (const target of targets) {

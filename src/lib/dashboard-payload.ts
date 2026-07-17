@@ -15,15 +15,12 @@ export type DashboardPayload = {
 export const DASHBOARD_YEAR = 2026;
 
 /** Incrementar quando a estrutura de fases ou ingestão do payload mudar. */
-export const DASHBOARD_DATA_VERSION = "economico-phases-v16";
+export const DASHBOARD_DATA_VERSION = "litoral-comercial-geral-v1";
 
 function rosterMembersForTarget(
-  pipeline: DashboardPipelineKey,
+  _pipeline: DashboardPipelineKey,
   target: PipelineDepartmentTarget,
 ) {
-  if (pipeline === "economico") {
-    return [];
-  }
   const staticTeam = STATIC_TEAMS.find((team) => team.id === target.teamId);
   return staticTeam?.members ?? [];
 }

@@ -30,10 +30,8 @@ import { AccessProvider, useAccess } from "@/lib/access";
 import {
   DASHBOARD_PIPELINES,
   DEFAULT_PIPELINE_KEY,
+  EXCLUSIVE_LITORAL_DIRECTORATE_LABEL,
   filterTeamsByDiretoria,
-  isPrimeiraChaveTeamId,
-  isFocusMainTeamId,
-  focusMainTeamTabLabel,
   isTeamVisibleInPipeline,
   resolveDashboardPipeline,
   type DashboardPipelineKey,
@@ -72,12 +70,12 @@ import {
   type Team,
 } from "@/lib/teams-data";
 
-const PIPELINE_STORAGE_KEY = "focus-dashboard-pipeline";
+const PIPELINE_STORAGE_KEY = "litoral-dashboard-pipeline";
 
 function readStoredPipeline(): DashboardPipelineKey | null {
   if (typeof window === "undefined") return null;
   const stored = localStorage.getItem(PIPELINE_STORAGE_KEY);
-  if (stored === "comercial_geral" || stored === "economico") {
+  if (stored === "comercial_geral") {
     return stored;
   }
   return null;
@@ -86,10 +84,10 @@ function readStoredPipeline(): DashboardPipelineKey | null {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Dashboard Comercial — Focus" },
+      { title: "Dashboard Comercial — Litoralize" },
       {
         name: "description",
-        content: "Visão dos leads em cada equipe Focus e suas fases em 2026.",
+        content: "Visão dos leads das equipes Guardiões do litoral e Águia em 2026.",
       },
     ],
   }),
@@ -297,11 +295,8 @@ function Dashboard({
       const selected = teams.find((team) => team.id === teamId);
       return selected ? [selected] : teams;
     }
-    if (activePipeline === "economico") {
-      return filterTeamsByDiretoria(teams, diretoria);
-    }
-    return teams;
-  }, [teams, teamId, activePipeline, diretoria]);
+    return filterTeamsByDiretoria(teams, diretoria);
+  }, [teams, teamId, diretoria]);
 
   const trend = useMemo(() => monthlyTrend(trendTeams, activePipeline), [trendTeams, activePipeline]);
   const trendMax = Math.max(...trend.map((t) => t.value), 1);
@@ -335,6 +330,9 @@ function Dashboard({
                 <h1 className="text-xl font-bold tracking-tight text-wrap-balance sm:text-2xl">
                   Dashboard Comercial
                 </h1>
+                <p className="mt-0.5 text-xs font-medium text-white/75">
+                  Superintendência Jordão · {EXCLUSIVE_LITORAL_DIRECTORATE_LABEL}
+                </p>
                 <p className="dashboard-source mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
                   <PipelineBadge pipeline={activePipeline} />
                   <span className="hidden sm:inline" aria-hidden>
@@ -493,16 +491,7 @@ function TeamGlassKpiCard({
   );
 }
 
-function PipelineBadge({ pipeline }: { pipeline: DashboardPipelineKey }) {
-  if (pipeline === "economico") {
-    return (
-      <span className="pipeline-badge pipeline-badge--economico">
-        <span className="pipeline-badge__dot" aria-hidden />
-        Esteira Econômico
-      </span>
-    );
-  }
-
+function PipelineBadge({ pipeline: _pipeline }: { pipeline: DashboardPipelineKey }) {
   return (
     <span className="pipeline-badge pipeline-badge--comercial-geral">
       <span className="pipeline-badge__dot" aria-hidden />
@@ -601,7 +590,6 @@ function AnimatedDashboardContent({
           <Overview
             teams={teams}
             month={month}
-            pipeline={pipeline}
             diretoria={diretoria}
             trend={trend}
             trendMax={trendMax}
@@ -1092,91 +1080,9 @@ function ComercialGeralOverview({
   );
 }
 
-function EconomicoOverview({
-  teams,
-  month,
-  trend,
-  trendMax,
-  onPickMonth,
-  onTeamSelect,
-}: {
-  teams: Team[];
-  month: MonthFilter;
-  trend: { month: (typeof MONTHS)[number]; value: number }[];
-  trendMax: number;
-  onPickMonth: (m: MonthFilter) => void;
-  onTeamSelect: (id: string) => void;
-}) {
-  const motionTier = useMotionTier();
-  const activePhases = getActivePhases("economico");
-  const lostPhases = getLostPhases("economico");
-  const legendSections = getFunnelLegendSections("economico");
-  const orderedTeams = useMemo(() => {
-    const focus = teams.filter((team) => isFocusMainTeamId(team.id));
-    const primeiraChave = teams.filter((team) => isPrimeiraChaveTeamId(team.id));
-    return [...focus, ...primeiraChave];
-  }, [teams]);
-  const phaseTotals = [...activePhases, ...lostPhases].map((phase) => ({
-    phase,
-    value: teams.reduce((sum, team) => sum + teamPhaseTotal(team, phase, month), 0),
-  }));
-  const activeSum = phaseTotals
-    .filter((item) => activePhases.includes(item.phase))
-    .reduce((sum, item) => sum + item.value, 0);
-  const lostSum = phaseTotals
-    .filter((item) => lostPhases.includes(item.phase))
-    .reduce((sum, item) => sum + item.value, 0);
-
-  return (
-    <div className="flex flex-col gap-2.5 pb-1 min-w-0 w-full">
-      <div className="dash-kpi-grid dash-kpi-grid--row">
-        <GlassKpiCard index={0} tint="from-blue-500/12 via-white to-white">
-          <p className={cn(LABEL_CHROME, "truncate tracking-widest")}>
-            {month === "all" ? "Funil ativo · 2026" : `Funil ativo · ${MONTH_LABELS[month]}/2026`}
-          </p>
-          <AnimatedNumber value={activeSum} className={KPI_METRIC} />
-          <p className="dash-kpi-footnote mt-1 text-xs text-slate-500">
-            {teams.length} equipes · {teams.reduce((sum, team) => sum + teamBrokerCount(team), 0)} corretores
-          </p>
-        </GlassKpiCard>
-
-        {orderedTeams.map((team, index) => {
-          const active = teamActiveTotal(team, month, "economico");
-          const share = activeSum ? active / activeSum : 0;
-          return (
-            <TeamGlassKpiCard
-              key={team.id}
-              team={team}
-              active={active}
-              share={share}
-              index={index + 1}
-              onSelect={() => onTeamSelect(team.id)}
-            />
-          );
-        })}
-      </div>
-
-      <OverviewAnalyticsSection
-        month={month}
-        trend={trend}
-        trendMax={trendMax}
-        onPickMonth={onPickMonth}
-        phaseTotals={phaseTotals}
-        activeSum={activeSum}
-        lostSum={lostSum}
-        motionTier={motionTier}
-        activePhases={activePhases}
-        lostPhases={lostPhases}
-        legendSections={legendSections}
-      />
-    </div>
-  );
-}
-
 function Overview({
   teams,
   month,
-  pipeline,
   diretoria,
   trend,
   trendMax,
@@ -1185,28 +1091,13 @@ function Overview({
 }: {
   teams: Team[];
   month: MonthFilter;
-  pipeline: DashboardPipelineKey;
   diretoria: DiretoriaFilter;
   trend: { month: (typeof MONTHS)[number]; value: number }[];
   trendMax: number;
   onPickMonth: (m: MonthFilter) => void;
   onTeamSelect: (id: string) => void;
 }) {
-  const scopedTeams =
-    pipeline === "economico" ? filterTeamsByDiretoria(teams, diretoria) : teams;
-
-  if (pipeline === "economico") {
-    return (
-      <EconomicoOverview
-        teams={scopedTeams}
-        month={month}
-        trend={trend}
-        trendMax={trendMax}
-        onPickMonth={onPickMonth}
-        onTeamSelect={onTeamSelect}
-      />
-    );
-  }
+  const scopedTeams = filterTeamsByDiretoria(teams, diretoria);
 
   return (
     <ComercialGeralOverview
@@ -1258,8 +1149,6 @@ function TeamView({
 }) {
   const motionTier = useMotionTier();
   const accent = TEAM_ACCENT[team.id];
-  const isPrimeiraChave = isPrimeiraChaveTeamId(team.id);
-  const isEconomico = pipeline === "economico";
   const activePhases = getActivePhases(pipeline);
   const lostPhases = getLostPhases(pipeline);
   const legendSections = getFunnelLegendSections(pipeline);
@@ -1293,14 +1182,10 @@ function TeamView({
     return map[p] ?? PHASE_SHORT_LABELS[p] ?? p;
   };
 
-  const activePhasesBeforeAttendance = isEconomico
-    ? []
-    : ACTIVE_PHASES.slice(0, ACTIVE_PHASES.indexOf(ATTENDANCE_STATUS_PHASES[0]));
-  const activePhasesAfterAttendance = isEconomico
-    ? []
-    : ACTIVE_PHASES.slice(
-        ACTIVE_PHASES.indexOf(ATTENDANCE_STATUS_PHASES[ATTENDANCE_STATUS_PHASES.length - 1]) + 1,
-      );
+  const activePhasesBeforeAttendance = ACTIVE_PHASES.slice(0, ACTIVE_PHASES.indexOf(ATTENDANCE_STATUS_PHASES[0]));
+  const activePhasesAfterAttendance = ACTIVE_PHASES.slice(
+    ACTIVE_PHASES.indexOf(ATTENDANCE_STATUS_PHASES[ATTENDANCE_STATUS_PHASES.length - 1]) + 1,
+  );
 
   return (
     <div className="grid h-full min-h-0 grid-cols-1 gap-3 lg:grid-cols-12 lg:grid-rows-6">
@@ -1321,18 +1206,10 @@ function TeamView({
         >
           <div className="flex min-w-0 flex-col justify-between">
             <div>
-              {pipeline === "economico" && isPrimeiraChave ? (
-                <p className="text-[11px] font-semibold tracking-wide text-blue-600">
-                  Focus Primeira Chave
-                </p>
-              ) : isFocusMainTeamId(team.id) ? (
-                <p className="text-[11px] font-semibold tracking-wide text-blue-600">Focus</p>
-              ) : (
-                <p className="text-xs font-semibold tracking-[0.2em] text-slate-500">Equipe</p>
-              )}
-              <h2 className="mt-1 text-2xl font-bold text-slate-900">
-                {isFocusMainTeamId(team.id) ? focusMainTeamTabLabel(team.name) : team.name}
-              </h2>
+              <p className="text-[11px] font-semibold tracking-wide text-blue-600">
+                {EXCLUSIVE_LITORAL_DIRECTORATE_LABEL}
+              </p>
+              <h2 className="mt-1 text-2xl font-bold text-slate-900">{team.name}</h2>
               <p className="text-xs text-slate-600">
                 {teamBrokerCount(team)} corretores ·{" "}
                 {month === "all" ? "Ano de 2026" : `${MONTH_LABELS[month]}/2026`}
@@ -1431,57 +1308,40 @@ function TeamView({
                 >
                   Corretor
                 </th>
-                {isEconomico
-                  ? activePhases.map((p) => (
-                      <th
-                        key={p}
-                        rowSpan={2}
-                        scope="col"
-                        className="border-b border-slate-200 px-2.5 py-3 text-center font-medium dark:border-white/10"
-                        title={p}
-                      >
-                        {phaseHeaderLabel(p)}
-                      </th>
-                    ))
-                  : null}
-                {!isEconomico ? (
-                  <>
-                    {activePhasesBeforeAttendance.map((p) => (
-                      <th
-                        key={p}
-                        rowSpan={2}
-                        scope="col"
-                        className="border-b border-slate-200 px-2.5 py-3 text-center font-medium dark:border-white/10"
-                        title={p}
-                      >
-                        {phaseHeaderLabel(p)}
-                      </th>
-                    ))}
-                    <th
-                      colSpan={ATTENDANCE_STATUS_PHASES.length}
-                      scope="colgroup"
-                      className="border-b border-slate-200 px-2.5 py-2 text-center text-[11px] font-semibold tracking-wide text-slate-600 dark:border-white/10 dark:text-slate-300"
-                    >
-                      {ATTENDANCE_STATUS_GROUP_LABEL}
-                    </th>
-                    {activePhasesAfterAttendance.map((p, phaseIndex) => (
-                      <th
-                        key={p}
-                        rowSpan={2}
-                        scope="col"
-                        className={cn(
-                          "border-b border-slate-200 font-medium dark:border-white/10",
-                          phaseIndex === activePhasesAfterAttendance.length - 1
-                            ? BROKER_TABLE_PHASE_LAST
-                            : BROKER_TABLE_PHASE,
-                        )}
-                        title={p}
-                      >
-                        {phaseHeaderLabel(p)}
-                      </th>
-                    ))}
-                  </>
-                ) : null}
+                {activePhasesBeforeAttendance.map((p) => (
+                  <th
+                    key={p}
+                    rowSpan={2}
+                    scope="col"
+                    className="border-b border-slate-200 px-2.5 py-3 text-center font-medium dark:border-white/10"
+                    title={p}
+                  >
+                    {phaseHeaderLabel(p)}
+                  </th>
+                ))}
+                <th
+                  colSpan={ATTENDANCE_STATUS_PHASES.length}
+                  scope="colgroup"
+                  className="border-b border-slate-200 px-2.5 py-2 text-center text-[11px] font-semibold tracking-wide text-slate-600 dark:border-white/10 dark:text-slate-300"
+                >
+                  {ATTENDANCE_STATUS_GROUP_LABEL}
+                </th>
+                {activePhasesAfterAttendance.map((p, phaseIndex) => (
+                  <th
+                    key={p}
+                    rowSpan={2}
+                    scope="col"
+                    className={cn(
+                      "border-b border-slate-200 font-medium dark:border-white/10",
+                      phaseIndex === activePhasesAfterAttendance.length - 1
+                        ? BROKER_TABLE_PHASE_LAST
+                        : BROKER_TABLE_PHASE,
+                    )}
+                    title={p}
+                  >
+                    {phaseHeaderLabel(p)}
+                  </th>
+                ))}
                 {lostPhases.map((p, phaseIndex) => (
                   <th
                     key={p}
@@ -1511,25 +1371,23 @@ function TeamView({
                   Ativo
                 </th>
               </tr>
-              {!isEconomico ? (
-                <tr className="border-b border-slate-200 dark:border-white/10">
-                  {ATTENDANCE_STATUS_PHASES.map((p, phaseIndex) => (
-                    <th
-                      key={p}
-                      scope="col"
-                      className={cn(
-                        "border-b border-slate-200 font-medium dark:border-white/10",
-                        phaseIndex === ATTENDANCE_STATUS_PHASES.length - 1
-                          ? BROKER_TABLE_PHASE_LAST
-                          : BROKER_TABLE_PHASE,
-                      )}
-                      title={p}
-                    >
-                      {phaseHeaderLabel(p)}
-                    </th>
-                  ))}
-                </tr>
-              ) : null}
+              <tr className="border-b border-slate-200 dark:border-white/10">
+                {ATTENDANCE_STATUS_PHASES.map((p, phaseIndex) => (
+                  <th
+                    key={p}
+                    scope="col"
+                    className={cn(
+                      "border-b border-slate-200 font-medium dark:border-white/10",
+                      phaseIndex === ATTENDANCE_STATUS_PHASES.length - 1
+                        ? BROKER_TABLE_PHASE_LAST
+                        : BROKER_TABLE_PHASE,
+                    )}
+                    title={p}
+                  >
+                    {phaseHeaderLabel(p)}
+                  </th>
+                ))}
+              </tr>
             </thead>
             <tbody>
               {members.map(({ member, active }, idx) => {
@@ -1559,7 +1417,7 @@ function TeamView({
                                 ? "text-slate-500"
                                 : "text-slate-800 dark:text-slate-100",
                           )}
-                          title={departed ? "Saiu da equipe Focus" : undefined}
+                          title={departed ? "Saiu da equipe" : undefined}
                         >
                           {member.name}
                         </span>

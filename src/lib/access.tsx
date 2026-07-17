@@ -95,20 +95,12 @@ function isPipelineMigrationError(error: unknown): boolean {
 }
 
 function defaultPipelines(): DashboardPipeline[] {
-  return [
-    ...DASHBOARD_PIPELINES.map((pipeline, index) => ({
-      key: pipeline.key,
-      label: pipeline.label,
-      bitrix_category_id: pipeline.bitrixCategoryId,
-      sort_order: index + 1,
-    })),
-    {
-      key: "ambas",
-      label: "Ambas as esteiras",
-      bitrix_category_id: 0,
-      sort_order: 0,
-    },
-  ];
+  return DASHBOARD_PIPELINES.map((pipeline, index) => ({
+    key: pipeline.key,
+    label: pipeline.label,
+    bitrix_category_id: pipeline.bitrixCategoryId,
+    sort_order: index + 1,
+  }));
 }
 
 async function detectPipelineMigrationPending(

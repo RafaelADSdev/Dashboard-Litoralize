@@ -7,73 +7,55 @@ export const APP_ROLES = [
 
 export type AppRoleSlug = (typeof APP_ROLES)[number]["slug"];
 
+export const EXCLUSIVE_LITORAL_DIRECTORATE_LABEL = "Exclusive - Litoral";
+
+export const LITORAL_TEAM_IDS = ["guardioes_litoral", "aguia"] as const;
+export type LitoralTeamId = (typeof LITORAL_TEAM_IDS)[number];
+
 export const DASHBOARD_PAGES = [
   { key: "overview", label: "Visão Geral" },
-  { key: "team:elite", label: "Focus Elite" },
-  { key: "team:lider", label: "Focus Líder" },
-  { key: "team:total", label: "Focus Total" },
-  { key: "team:imparaveis", label: "Imparáveis" },
-  { key: "team:domina", label: "Domina" },
-  { key: "team:legado", label: "Legado" },
-  { key: "team:lobos", label: "Lobos" },
+  { key: "team:guardioes_litoral", label: "Guardiões do litoral" },
+  { key: "team:aguia", label: "Águia" },
 ] as const;
 
 export type DashboardPageKey = (typeof DASHBOARD_PAGES)[number]["key"];
 
-const COMERCIAL_PAGE_KEYS = [
+const LITORAL_PAGE_KEYS = [
   "overview",
-  "team:elite",
-  "team:lider",
-  "team:total",
+  "team:guardioes_litoral",
+  "team:aguia",
 ] as const satisfies readonly DashboardPageKey[];
 
-const ECONOMICO_PAGE_KEYS = [
-  "overview",
-  "team:imparaveis",
-  "team:domina",
-  "team:legado",
-  "team:lobos",
-] as const satisfies readonly DashboardPageKey[];
-
-/** Páginas válidas para a esteira selecionada na gestão de acesso. */
+/** Páginas válidas para a esteira Comercial Geral (única esteira do Litoral). */
 export function dashboardPageKeysForPipeline(
-  pipeline: UserPipelineAccessKey,
+  _pipeline: UserPipelineAccessKey = DEFAULT_PIPELINE_KEY,
 ): readonly DashboardPageKey[] {
-  if (pipeline === "ambas") {
-    return DASHBOARD_PAGES.map((page) => page.key);
-  }
-  if (pipeline === "economico") {
-    return ECONOMICO_PAGE_KEYS;
-  }
-  return COMERCIAL_PAGE_KEYS;
+  return LITORAL_PAGE_KEYS;
 }
 
 export function filterPagesForPipelineAccess<
   T extends { key: DashboardPageKey; label: string },
->(pages: T[], pipeline: UserPipelineAccessKey): T[] {
-  const allowed = new Set(dashboardPageKeysForPipeline(pipeline));
+>(pages: T[], _pipeline: UserPipelineAccessKey): T[] {
+  const allowed = new Set(dashboardPageKeysForPipeline());
   return pages.filter((page) => allowed.has(page.key));
 }
 
 export function prunePageKeysForPipeline(
   pageKeys: Iterable<DashboardPageKey>,
-  pipeline: UserPipelineAccessKey,
+  _pipeline: UserPipelineAccessKey,
 ): DashboardPageKey[] {
-  const allowed = new Set(dashboardPageKeysForPipeline(pipeline));
+  const allowed = new Set(dashboardPageKeysForPipeline());
   return [...pageKeys].filter((key) => allowed.has(key));
 }
 
 export const DASHBOARD_PIPELINES = [
   { key: "comercial_geral", label: "Comercial Geral", bitrixCategoryId: 16 },
-  { key: "economico", label: "Econômico", bitrixCategoryId: 64 },
 ] as const;
 
 export type DashboardPipelineKey = (typeof DASHBOARD_PIPELINES)[number]["key"];
 
 export const PIPELINE_ACCESS_MODES = [
   { key: "comercial_geral", label: "Comercial Geral" },
-  { key: "economico", label: "Econômico" },
-  { key: "ambas", label: "Ambas as esteiras" },
 ] as const;
 
 export type UserPipelineAccessKey = (typeof PIPELINE_ACCESS_MODES)[number]["key"];
@@ -138,27 +120,26 @@ export function isAdministratorRole(slug: string | undefined | null): boolean {
   return slug === "administrador";
 }
 
-export function isPipelineSwitcherRole(slug: string | undefined | null): boolean {
-  return slug === "superintendente" || slug === "administrador";
+export function isPipelineSwitcherRole(_slug: string | undefined | null): boolean {
+  return false;
 }
 
 export function hasBothPipelinesAccess(
-  pipelineKey: UserPipelineAccessKey | null | undefined,
+  _pipelineKey: UserPipelineAccessKey | null | undefined,
 ): boolean {
-  return pipelineKey === "ambas";
+  return false;
 }
 
 export function canUserSwitchPipeline(
-  roleSlug: string | null | undefined,
-  pipelineKey: UserPipelineAccessKey | null | undefined,
+  _roleSlug: string | null | undefined,
+  _pipelineKey: UserPipelineAccessKey | null | undefined,
 ): boolean {
-  return isPipelineSwitcherRole(roleSlug) || hasBothPipelinesAccess(pipelineKey);
+  return false;
 }
 
 export function normalizeUserPipelineAccess(
-  value: string | null | undefined,
+  _value: string | null | undefined,
 ): UserPipelineAccessKey {
-  if (value === "economico" || value === "ambas") return value;
   return DEFAULT_PIPELINE_KEY;
 }
 
@@ -173,9 +154,9 @@ export function pipelineAccessOptions(
 }
 
 export function resolveDashboardPipeline(
-  access: UserPipelineAccessKey,
+  _access: UserPipelineAccessKey,
 ): DashboardPipelineKey {
-  return access === "ambas" ? DEFAULT_PIPELINE_KEY : access;
+  return DEFAULT_PIPELINE_KEY;
 }
 
 export function getPipelineMeta(key: DashboardPipelineKey) {
@@ -197,56 +178,46 @@ export type PipelineDepartmentTarget = {
   departmentId?: number;
 };
 
-/** IDs conhecidos do departamento raiz FOCUS - PRIMEIRA CHAVE no Bitrix. */
-export const PRIMEIRA_CHAVE_ROOT_IDS = [617, 637] as const;
-
-const PRIMEIRA_CHAVE_NAME = /focus\s*-\s*primeira\s*chave/i;
-
 const PIPELINE_DEPARTMENTS: Record<DashboardPipelineKey, PipelineDepartmentTarget[]> = {
   comercial_geral: [
-    { teamId: "elite", teamLabel: "Focus Elite", departmentName: "Focus Elite" },
-    { teamId: "lider", teamLabel: "Focus Líder", departmentName: "Focus Líder" },
-    { teamId: "total", teamLabel: "Focus Total", departmentName: "Focus Total" },
+    {
+      teamId: "guardioes_litoral",
+      teamLabel: "Guardiões do litoral",
+      departmentName: "Guardiões do litoral",
+    },
+    {
+      teamId: "aguia",
+      teamLabel: "Águia",
+      departmentName: "Águia",
+    },
   ],
-  economico: [],
 };
 
-/** Sub-equipes exibidas no placeholder da esteira Econômico antes do Bitrix carregar. */
-export const ECONOMICO_PRIMEIRA_CHAVE_TEAMS: PipelineDepartmentTarget[] = [
-  { teamId: "imparaveis", teamLabel: "Imparáveis", departmentName: "IMPARÁVEIS" },
-  { teamId: "domina", teamLabel: "Domina", departmentName: "DOMINA" },
-  { teamId: "legado", teamLabel: "Legado", departmentName: "LEGADO" },
-  { teamId: "lobos", teamLabel: "Lobos", departmentName: "LOBOS" },
-];
-
-export const PRIMEIRA_CHAVE_TEAM_IDS = new Set(
-  ECONOMICO_PRIMEIRA_CHAVE_TEAMS.map((team) => team.teamId),
-);
-
-export function isPrimeiraChaveTeamId(teamId: string): boolean {
-  return PRIMEIRA_CHAVE_TEAM_IDS.has(teamId);
+export function isLitoralTeamId(teamId: string): boolean {
+  return (LITORAL_TEAM_IDS as readonly string[]).includes(teamId);
 }
 
-const FOCUS_MAIN_TEAM_IDS = new Set(["elite", "lider", "total"]);
-
+/** @deprecated use isLitoralTeamId */
 export function isFocusMainTeamId(teamId: string): boolean {
-  return FOCUS_MAIN_TEAM_IDS.has(teamId);
+  return isLitoralTeamId(teamId);
 }
 
-export type DiretoriaFilter = "all" | "focus" | "primeira_chave";
+export function isPrimeiraChaveTeamId(_teamId: string): boolean {
+  return false;
+}
+
+export type DiretoriaFilter = "all" | "exclusive_litoral";
 
 export function filterTeamsByDiretoria<T extends { id: string }>(
   teams: T[],
   diretoria: DiretoriaFilter,
 ): T[] {
   if (diretoria === "all") return teams;
-  return diretoria === "focus"
-    ? teams.filter((team) => isFocusMainTeamId(team.id))
-    : teams.filter((team) => isPrimeiraChaveTeamId(team.id));
+  return teams.filter((team) => isLitoralTeamId(team.id));
 }
 
 export function focusMainTeamTabLabel(name: string): string {
-  return name.replace(/^Focus\s+/i, "");
+  return name;
 }
 
 export function slugifyTeamId(name: string): string {
@@ -259,76 +230,7 @@ export function slugifyTeamId(name: string): string {
     .slice(0, 32);
 }
 
-function normalizeDepartmentKey(name: string): string {
-  return name
-    .normalize("NFD")
-    .replace(/\p{M}/gu, "")
-    .toLowerCase()
-    .trim();
-}
-
-/** Mantém IDs estáveis (imparaveis, domina…) mesmo se o nome no Bitrix variar. */
-export function teamIdForPrimeiraChaveDepartment(departmentName: string): string {
-  const key = normalizeDepartmentKey(departmentName);
-  const known = ECONOMICO_PRIMEIRA_CHAVE_TEAMS.find(
-    (team) =>
-      normalizeDepartmentKey(team.departmentName) === key ||
-      normalizeDepartmentKey(team.teamLabel) === key,
-  );
-  return known?.teamId ?? slugifyTeamId(departmentName);
-}
-
-export type BitrixDepartmentLike = {
-  ID: string | number;
-  NAME: string;
-  PARENT?: string | number;
-};
-
-export function findPrimeiraChaveRoot(
-  departments: BitrixDepartmentLike[],
-): BitrixDepartmentLike | null {
-  for (const id of PRIMEIRA_CHAVE_ROOT_IDS) {
-    const match = departments.find((department) => String(department.ID) === String(id));
-    if (match) return match;
-  }
-  return departments.find((department) => PRIMEIRA_CHAVE_NAME.test(department.NAME)) ?? null;
-}
-
-export function buildEconomicoDepartmentTargets(
-  departments: BitrixDepartmentLike[],
-): PipelineDepartmentTarget[] {
-  const root = findPrimeiraChaveRoot(departments);
-  if (!root) {
-    throw new Error("FOCUS - PRIMEIRA CHAVE não encontrado no Bitrix");
-  }
-
-  const rootId = String(root.ID);
-  const children = departments
-    .filter((department) => String(department.PARENT) === rootId)
-    .sort((a, b) => a.NAME.localeCompare(b.NAME, "pt-BR"));
-
-  if (children.length === 0) {
-    throw new Error(
-      `Nenhuma subequipe encontrada em FOCUS - PRIMEIRA CHAVE (departamento ${rootId})`,
-    );
-  }
-
-  return children.map((child) => ({
-    teamId: teamIdForPrimeiraChaveDepartment(child.NAME),
-    teamLabel: child.NAME.trim(),
-    departmentId: Number(child.ID),
-    departmentName: child.NAME,
-  }));
-}
-
-export function getEconomicoPlaceholderTargets(): PipelineDepartmentTarget[] {
-  return [...ECONOMICO_PRIMEIRA_CHAVE_TEAMS];
-}
-
 export function getPipelineDepartments(pipeline: DashboardPipelineKey): PipelineDepartmentTarget[] {
-  if (pipeline === "economico") {
-    return getEconomicoPlaceholderTargets();
-  }
   return PIPELINE_DEPARTMENTS[pipeline];
 }
 
@@ -338,14 +240,11 @@ export function getPipelineDepartmentLabels(pipeline: DashboardPipelineKey): str
     .join(", ");
 }
 
-const COMERCIAL_TEAM_IDS = new Set(["elite", "lider", "total"]);
+const LITORAL_TEAM_ID_SET = new Set<string>(LITORAL_TEAM_IDS);
 
-export function isTeamVisibleInPipeline(teamId: string, pipeline: DashboardPipelineKey): boolean {
+export function isTeamVisibleInPipeline(teamId: string, _pipeline: DashboardPipelineKey): boolean {
   if (teamId === "overview") return true;
-  if (pipeline === "comercial_geral") {
-    return COMERCIAL_TEAM_IDS.has(teamId);
-  }
-  return !COMERCIAL_TEAM_IDS.has(teamId);
+  return LITORAL_TEAM_ID_SET.has(teamId);
 }
 
 export function getPipelineTeamIds(pipeline: DashboardPipelineKey): string[] {
