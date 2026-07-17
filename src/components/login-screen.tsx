@@ -63,8 +63,8 @@ export function LoginScreen({ configured, onSignIn }: LoginScreenProps) {
               className="login-litoralize-logo"
               src={litoralizeLogo}
               alt="Litoralize"
-              width={180}
-              height={72}
+              width={220}
+              height={56}
               decoding="async"
             />
             <span className="login-brand-divider" aria-hidden="true" />
@@ -72,8 +72,8 @@ export function LoginScreen({ configured, onSignIn }: LoginScreenProps) {
               className="login-hubon-logo"
               src={hubOnLogo}
               alt="HubON"
-              width={72}
-              height={27}
+              width={108}
+              height={40}
               decoding="async"
             />
           </div>

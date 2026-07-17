@@ -115,20 +115,20 @@
 
   .login-brand-lockup {
     display: flex;
-    min-height: 3rem;
+    min-height: 3.5rem;
     align-items: center;
     gap: 1.25rem;
   }
 
   .login-litoralize-logo {
-    width: 11rem;
+    width: 13.75rem;
     height: auto;
     object-fit: contain;
     display: block;
   }
 
   .login-hubon-logo {
-    width: 4.5rem;
+    width: 6.75rem;
     height: auto;
     object-fit: contain;
     display: block;
@@ -136,7 +136,7 @@
 
   .login-brand-divider {
     width: 1px;
-    height: 2rem;
+    height: 3.25rem;
     background: var(--login-divider);
   }
 
@@ -1237,6 +1237,14 @@
 
   .dash-navbar .nav-team-tab[data-accent="aguia"]::after {
     background: linear-gradient(90deg, #0284c7, #22d3ee);
+  }
+
+  .team-share-bar__fill--guardioes_litoral {
+    background-image: linear-gradient(90deg, #1d4ed8, #60a5fa);
+  }
+
+  .team-share-bar__fill--aguia {
+    background-image: linear-gradient(90deg, #0284c7, #06b6d4);
   }
 
   .dash-navbar .nav-team-tab[data-accent="elite"]::after {

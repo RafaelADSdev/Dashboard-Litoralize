@@ -239,7 +239,7 @@ export const TEAMS = STATIC_TEAMS;
 
 export const TEAM_ACCENT: Record<string, string> = {
   guardioes_litoral: "from-blue-700 to-blue-400",
-  aguia: "from-sky-600 to-cyan-400",
+  aguia: "from-sky-600 to-teal-500",
 };
 
 /** Lavagem suave de fundo para cards compactos */

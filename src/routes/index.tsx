@@ -482,6 +482,7 @@ function TeamGlassKpiCard({
       <AnimatedShareBar
         share={share}
         accent={TEAM_ACCENT[team.id]}
+        teamId={team.id}
         delay={index * 90 + 180}
       />
       <p className="dash-kpi-footnote mt-1 text-xs text-slate-500">
@@ -1597,10 +1598,12 @@ function AnimatedNumber({ value, className }: { value: number; className?: strin
 function AnimatedShareBar({
   share,
   accent,
+  teamId,
   delay,
 }: {
   share: number;
-  accent: string;
+  accent?: string;
+  teamId?: string;
   delay: number;
 }) {
   const motionTier = useMotionTier();
@@ -1618,12 +1621,17 @@ function AnimatedShareBar({
     return () => window.clearTimeout(timer);
   }, [share, delay, motionTier]);
 
+  const teamFillClass =
+    teamId === "guardioes_litoral" || teamId === "aguia"
+      ? `team-share-bar__fill--${teamId}`
+      : null;
+
   return (
     <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
       <div
         className={cn(
-          "h-full bg-gradient-to-r motion-safe:transition-[width] motion-safe:duration-700 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)]",
-          accent,
+          "h-full motion-safe:transition-[width] motion-safe:duration-700 motion-safe:ease-[cubic-bezier(0.16,1,0.3,1)]",
+          teamFillClass ?? cn("bg-gradient-to-r", accent),
         )}
         style={{ width: `${width}%` }}
       />
