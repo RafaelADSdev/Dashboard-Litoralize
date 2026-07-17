@@ -117,7 +117,7 @@
     display: flex;
     min-height: 3.5rem;
     align-items: center;
-    gap: 1.25rem;
+    gap: 1.5rem;
   }
 
   .login-litoralize-logo {
@@ -125,6 +125,7 @@
     height: auto;
     object-fit: contain;
     display: block;
+    flex-shrink: 0;
   }
 
   .login-hubon-logo {
@@ -132,12 +133,24 @@
     height: auto;
     object-fit: contain;
     display: block;
+    flex-shrink: 0;
   }
 
   .login-brand-divider {
-    width: 1px;
-    height: 3.25rem;
-    background: var(--login-divider);
+    flex-shrink: 0;
+    align-self: center;
+    width: 2px;
+    height: 4rem;
+    border-radius: 9999px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      oklch(1 0 0 / 0.22) 16%,
+      oklch(1 0 0 / 0.52) 50%,
+      oklch(1 0 0 / 0.22) 84%,
+      transparent 100%
+    );
+    box-shadow: 0 0 10px oklch(1 0 0 / 0.1);
   }
 
   .login-copy {
