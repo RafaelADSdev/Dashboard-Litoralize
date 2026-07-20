@@ -8,6 +8,15 @@ import { resolveBitrixWebhookUrl } from "@/lib/bitrix-env";
 /** Campo personalizado do negócio: "Status do atendimento" (enum) */
 export const BITRIX_ATTENDANCE_STATUS_FIELD = "UF_CRM_1717073472";
 
+/** Campo personalizado do negocio: "Tipo" (enum). */
+export const BITRIX_DEAL_TYPE_FIELD = "UF_CRM_1717440784";
+
+/** Opcao "Litoral" do campo Tipo. */
+export const BITRIX_LITORAL_TYPE_OPTION_ID = "2052";
+
+const BITRIX_ATTENDANCE_STATUS_ITEM_FIELD = "ufCrm_1717073472";
+const BITRIX_DEAL_TYPE_ITEM_FIELD = "ufCrm_1717440784";
+
 /** IDs conhecidos do enum "Status do atendimento" (fallback se crm.deal.fields falhar) */
 export const BITRIX_ATTENDANCE_STATUS_OPTION_IDS = {
   quarentena: "4128",
@@ -23,7 +32,27 @@ export type BitrixLead = {
   ASSIGNED_BY_ID?: string;
   DATE_CREATE?: string;
   DATE_MODIFY?: string;
+  OBSERVER_IDS?: Array<string | number>;
   [BITRIX_ATTENDANCE_STATUS_FIELD]?: string | number | BitrixEnumerationValue | null;
+  [BITRIX_DEAL_TYPE_FIELD]?: string | number | BitrixEnumerationValue | null;
+};
+
+export type BitrixDealScope = {
+  dealTypeOptionId?: string;
+  observerIds?: string[];
+};
+
+type BitrixDealItem = {
+  id: string | number;
+  title?: string;
+  categoryId?: string | number;
+  stageId?: string;
+  assignedById?: string | number;
+  createdTime?: string;
+  updatedTime?: string;
+  observers?: Array<string | number>;
+  [BITRIX_ATTENDANCE_STATUS_ITEM_FIELD]?: string | number | BitrixEnumerationValue | null;
+  [BITRIX_DEAL_TYPE_ITEM_FIELD]?: string | number | BitrixEnumerationValue | null;
 };
 
 export type BitrixEnumerationValue = {
@@ -297,6 +326,52 @@ async function bitrixListAllById<T extends { ID: string | number }>(
       if (!/^\d+$/.test(itemId) || BigInt(itemId) <= BigInt(pageLastId)) {
         throw new Error(
           `Bitrix ${method}: a paginação por ID não avançou depois do registro ${pageLastId}`,
+        );
+      }
+      pageLastId = itemId;
+    }
+
+    all.push(...items);
+    if (items.length < 50) break;
+    lastId = pageLastId;
+  }
+  return all;
+}
+
+/**
+ * Pagina a API unificada do CRM por ID. Diferente de crm.deal.list, essa API
+ * expoe e filtra o campo `observers` dos negocios.
+ */
+async function bitrixItemListAllById<T extends { id: string | number }>(
+  params: Record<string, unknown>,
+): Promise<T[]> {
+  const all: T[] = [];
+  const baseFilter =
+    params.filter && typeof params.filter === "object" && !Array.isArray(params.filter)
+      ? (params.filter as Record<string, unknown>)
+      : {};
+  const baseParams = { ...params };
+  delete baseParams.filter;
+  delete baseParams.order;
+  delete baseParams.start;
+
+  let lastId = "0";
+  for (;;) {
+    const result = await bitrixCall<{ items?: T[] } | T[]>("crm.item.list", {
+      ...baseParams,
+      filter: { ...baseFilter, ">id": lastId },
+      order: { id: "ASC" },
+      start: -1,
+    });
+    const items = Array.isArray(result) ? result : (result?.items ?? []);
+    if (items.length === 0) break;
+
+    let pageLastId = lastId;
+    for (const item of items) {
+      const itemId = String(item.id ?? "");
+      if (!/^\d+$/.test(itemId) || BigInt(itemId) <= BigInt(pageLastId)) {
+        throw new Error(
+          `Bitrix crm.item.list: a paginacao por ID nao avancou depois do registro ${pageLastId}`,
         );
       }
       pageLastId = itemId;

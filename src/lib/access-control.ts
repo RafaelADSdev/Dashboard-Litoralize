@@ -9,6 +9,9 @@ export type AppRoleSlug = (typeof APP_ROLES)[number]["slug"];
 
 export const EXCLUSIVE_LITORAL_DIRECTORATE_LABEL = "Exclusive - Litoral";
 
+/** Raízes dos departamentos Exclusive Litoral no Bitrix (inclui subdepartamentos). */
+export const LITORAL_BITRIX_DEPARTMENT_IDS = [352, 402, 515] as const;
+
 export const LITORAL_TEAM_IDS = ["guardioes_litoral", "aguia"] as const;
 export type LitoralTeamId = (typeof LITORAL_TEAM_IDS)[number];
 
@@ -184,11 +187,13 @@ const PIPELINE_DEPARTMENTS: Record<DashboardPipelineKey, PipelineDepartmentTarge
       teamId: "guardioes_litoral",
       teamLabel: "Guardiões do litoral",
       departmentName: "Guardiões do litoral",
+      departmentId: 402,
     },
     {
       teamId: "aguia",
       teamLabel: "Águia",
       departmentName: "Águia",
+      departmentId: 515,
     },
   ],
 };

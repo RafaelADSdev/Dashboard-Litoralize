@@ -34,6 +34,7 @@ import {
   getPipelineDepartmentLabels,
   getPipelineDepartments,
   getPipelineMeta,
+  LITORAL_BITRIX_DEPARTMENT_IDS,
   type DashboardPipelineKey,
   type PipelineDepartmentTarget,
 } from "@/lib/access-control";
@@ -119,6 +120,26 @@ function userDepartmentIds(user: BitrixUser): string[] {
   const value = user.UF_DEPARTMENT;
   if (value == null || value === "") return [];
   return (Array.isArray(value) ? value : [value]).map(String).filter(Boolean);
+}
+
+function buildAllowedDepartmentIds(
+  departments: BitrixDepartment[],
+  rootIds: readonly number[],
+): Set<string> {
+  const allowed = new Set<string>();
+  for (const rootId of rootIds) {
+    for (const departmentId of collectDepartmentDescendants(departments, String(rootId))) {
+      allowed.add(departmentId);
+    }
+  }
+  return allowed;
+}
+
+function isUserInAllowedDepartments(
+  user: BitrixUser,
+  allowedDepartmentIds: Set<string>,
+): boolean {
+  return userDepartmentIds(user).some((departmentId) => allowedDepartmentIds.has(departmentId));
 }
 
 function collectDepartmentDescendants(
@@ -623,6 +644,7 @@ async function loadFromBitrix(pipeline: DashboardPipelineKey): Promise<Dashboard
   ]);
 
   const departmentTargets = getPipelineDepartments(pipeline);
+  const allowedDepartmentIds = buildAllowedDepartmentIds(departments, LITORAL_BITRIX_DEPARTMENT_IDS);
   const teams = emptyRosterFromTargets(departmentTargets, pipeline);
   const { direct: directDepartmentTeams, resolved: departmentTeams } = resolveDepartmentTargets(
     departments,
@@ -632,6 +654,8 @@ async function loadFromBitrix(pipeline: DashboardPipelineKey): Promise<Dashboard
   const users = new Map<string, { name: string; photoUrl?: string; id: string; teamId: string }>();
 
   for (const u of bitrixUsers) {
+    if (!isUserInAllowedDepartments(u, allowedDepartmentIds)) continue;
+
     const id = String(u.ID);
     const teamId = resolveUserTeamId(userDepartmentIds(u), directDepartmentTeams, departmentTeams);
     if (!teamId) continue;
